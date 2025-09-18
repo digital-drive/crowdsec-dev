@@ -1,0 +1,16 @@
+variables:
+  DOCKER_IMAGE:  "$CI_REGISTRY/crowdsec:dev"
+
+build_and_push_docker:
+  image: docker:28-cli
+  stage: build
+  before_script:
+    - docker info
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker build -t $DOCKER_IMAGE .
+    - docker push $DOCKER_IMAGE
+  tags:
+    - docker-runner
+  only:
+    - main
