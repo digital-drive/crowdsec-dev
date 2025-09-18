@@ -53,4 +53,8 @@ RUN sed -i  -e "s#\./config#${INSTALL_DIR}/tests/config#g" \
 
 ENV PATH="${INSTALL_DIR}/tests/:${PATH}"
 
+WORKDIR hub/
+
+RUN $INSTALL_DIR/tests/cscli -c $INSTALL_DIR/tests/dev.yaml hubtest run --all
+
 CMD ["/bin/bash"]
