@@ -6,6 +6,7 @@ ARG VER=1.7.0
 ARG INSTALL_DIR=/crowdsec
 ARG CS_TARBALL=crowdsec-release.tgz
 ARG CS_SHA256="4b318d4a301cb9c88d53a7455d752343112540b88d85c46a63b1fc79f8d712ab"
+ARG SKIP_TESTS=false
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="${INSTALL_DIR}/tests/:${PATH}"
@@ -51,10 +52,18 @@ RUN sed -i \
 
 WORKDIR "${INSTALL_DIR}/tests"
 
-RUN git clone --filter=blob:none --depth=1 https://github.com/crowdsecurity/hub hub \
-      && cd hub \
-      && "${INSTALL_DIR}/tests/cscli" -c "${INSTALL_DIR}/tests/dev.yaml" hubtest run --all \
-      && rm -rf "${INSTALL_DIR}/tests/hub" \
+RUN if [ "$SKIP_TESTS" != "true" ]; then \
+    git clone --filter=blob:none --depth=1 https://github.com/crowdsecurity/hub hub && \
+    cd hub && \
+    "${INSTALL_DIR}/tests/cscli" -c "${INSTALL_DIR}/tests/dev.yaml" hubtest run --all ; \
+  else \
+    echo "Tests skipped"; \
+  fi
+
+
+
+
+    #&& rm -rf "${INSTALL_DIR}/tests/hub" \
 
 # Alias csdev
 RUN printf "alias csdev='%s/tests/cscli -c %s/tests/dev.yaml'\n" "${INSTALL_DIR}" "${INSTALL_DIR}" >> /root/.bashrc
