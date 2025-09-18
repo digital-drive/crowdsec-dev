@@ -33,13 +33,9 @@ RUN curl -fsSL "https://github.com/crowdsecurity/crowdsec/releases/download/v${V
  && tar xzf "${CS_TARBALL}" \
  && rm -f "${CS_TARBALL}"
 
-
-
-# Préparation environnement crowdsec
 WORKDIR "${INSTALL_DIR}"
 RUN ./test_env.sh
 
-# Patch de la config en une seule passe
 RUN sed -i \
     -e 's/^\([[:space:]]*\)#simulation_path:/\1simulation_path:/' \
     -e 's/^\([[:space:]]*\)#hub_dir:/\1hub_dir:/' \
@@ -52,17 +48,15 @@ RUN sed -i \
     -e "s#\./plugins/#${INSTALL_DIR}/tests/plugins/#g" \
     "${INSTALL_DIR}/tests/dev.yaml"
 
-# Zone de tests
 WORKDIR "${INSTALL_DIR}/tests"
 
-# Hub local shallow clone pour accélérer et mieux utiliser le cache
-RUN git clone --filter=blob:none --depth=1 https://github.com/crowdsecurity/hub hub
+RUN git clone --filter=blob:none --depth=1 https://github.com/crowdsecurity/hub hub \
+      && cd hub \
+      && "${INSTALL_DIR}/tests/cscli" -c "${INSTALL_DIR}/tests/dev.yaml" hubtest run --all \
+      && rm -rf "${INSTALL_DIR}/tests/hub" \
 
 # Alias csdev
 RUN printf "alias csdev='%s/tests/cscli -c %s/tests/dev.yaml'\n" "${INSTALL_DIR}" "${INSTALL_DIR}" >> /root/.bashrc
 
-# Lancement des tests hub
-WORKDIR "${INSTALL_DIR}/tests/hub"
-RUN "${INSTALL_DIR}/tests/cscli" -c "${INSTALL_DIR}/tests/dev.yaml" hubtest run --all
 
 CMD ["/bin/bash"]
