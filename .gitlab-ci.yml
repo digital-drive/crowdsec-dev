@@ -1,5 +1,5 @@
 variables:
-  DOCKER_IMAGE:  "$CI_REGISTRY/crowdsec:dev"
+  DOCKER_IMAGE:  "$CI_REGISTRY/crowdsec-dev:1.7.0"
 
 build_and_push_docker:
   image: docker:28-cli
