@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 LABEL maintainer="Maxence Winandy <maxence.winandy@digital-drive.io>"
 
 ARG VER=1.7.0
-ARG INSTALL_DIR=/crowdsec-v$VER
+ARG INSTALL_DIR=/crowdsec
 ARG CS_TARBALL=crowdsec-release.tgz
 ARG CS_SHA256="4b318d4a301cb9c88d53a7455d752343112540b88d85c46a63b1fc79f8d712ab"
 
@@ -31,6 +31,7 @@ WORKDIR /
 RUN curl -fsSL "https://github.com/crowdsecurity/crowdsec/releases/download/v${VER}/crowdsec-release.tgz" -o "${CS_TARBALL}" \
  && if [[ -n "${CS_SHA256}" ]]; then echo "${CS_SHA256}  ${CS_TARBALL}" | sha256sum -c -; fi \
  && tar xzf "${CS_TARBALL}" \
+ && mv crowdsec-v${VER} crowdsec \
  && rm -f "${CS_TARBALL}"
 
 WORKDIR "${INSTALL_DIR}"
